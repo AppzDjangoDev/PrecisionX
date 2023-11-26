@@ -101,26 +101,14 @@ WSGI_APPLICATION = 'precisionx.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#         'OPTIONS': {
-#             'timeout': 30,  # Set the timeout value here (in seconds)
-#         },
-
-#     }
-# }
-
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'precisionx_db',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': '0.0.0.0',  # Docker service name
-        'PORT': '5432',  # PostgreSQL default port
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': 30,  # Set the timeout value here (in seconds)
+        },
+
     }
 }
 
