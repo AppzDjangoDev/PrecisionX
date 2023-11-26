@@ -1,0 +1,133 @@
+{% extends "landing/index.html" %}
+{% block content %}
+
+<section id="contact" class="s-login">
+
+    <div class="overlay"></div>
+
+    <div class="row section-header" data-aos="fade-up">
+        <div class="col-full">
+            <h3 class="subhead">Login</h3>
+            <h1 class="display-2 display-2--light">Reach out for a new project or just say hello</h1>
+        </div>
+    </div>
+
+    <div class="row contact-content" data-aos="fade-up">
+        
+        <div class="contact-primary">
+
+            <h3 class="h6">Login Here</h3>
+
+            {% comment %} <form name="contactForm" id="contactForm" method="post" action="" novalidate="novalidate">
+                <fieldset>
+
+                <div class="form-field">
+                    <input name="contactEmail" type="email" id="contactEmail" placeholder="Your Email" value="" required="" aria-required="true" class="full-width">
+                </div>
+                <div class="form-field">
+                    <input name="contactSubject" type="password" id="contactSubject" placeholder="Password" value="" class="full-width">
+                </div>
+                <div class="form-field">
+                    <button class="full-width btn--primary">Login</button>
+                    <div class="submit-loader">
+                        <div class="text-loader">Sending...</div>
+                        <div class="s-loader">
+                            <div class="bounce1"></div>
+                            <div class="bounce2"></div>
+                            <div class="bounce3"></div>
+                        </div>
+                    </div>
+                </div>
+
+                </fieldset>
+            </form> {% endcomment %}
+
+            <form name="loginForm" id="loginForm" method="post" action="{% url 'login' %}" novalidate="novalidate">
+                {% csrf_token %}
+                <fieldset>
+                    <div class="form-field">
+                        <label for="loginEmail">Username:</label>
+                        <input name="username" type="text" id="loginEmail" placeholder="Username " required="" aria-required="true" class="full-width">
+                    </div>
+                    <div class="form-field">
+                        <label for="loginPassword">Password:</label>
+                        <input name="password" type="password" id="loginPassword" placeholder="Password" required="" aria-required="true" class="full-width">
+                    </div>
+                    <div class="form-field">
+                        <button class="full-width btn--primary"  value="submit"  type="submit">Login</button>
+                        <div class="submit-loader">
+                            <div class="text-loader">Sending...</div>
+                            <div class="s-loader">
+                                <div class="bounce1"></div>
+                                <div class="bounce2"></div>
+                                <div class="bounce3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+            
+
+            <!-- contact-warning -->
+            <div class="message-warning">
+                Something went wrong. Please try again.
+            </div> 
+        
+            <!-- contact-success -->
+            <div class="message-success">
+                Your message was sent, thank you!<br>
+            </div>
+
+        </div> <!-- end contact-primary -->
+
+        <div class="contact-secondary">
+            <div class="contact-info">
+
+                <h3 class="h6 hide-on-fullwidth">Register here</h3>
+
+                <div class="cinfo">
+                    <a href="{% url 'user_registration' %}"><h5>Register with Details</h5></a>
+                    
+                </div>
+
+                <div class="cinfo">
+                    <a href="#"><h5>Register with Google</h5></a>
+                </div>
+                <div class="cinfo">
+                    <a href="#"><h5>Forgot Password</h5></a>
+                </div>
+
+                <div class="cinfo">
+                    <a href="#"><h5>Contact Us At</h5></a>
+                </div>
+
+                <ul class="contact-social">
+                    <li>
+                        <a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-instagram" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-behance" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-dribbble" aria-hidden="true"></i></a>
+                    </li>
+                </ul> <!-- end contact-social -->
+
+            </div> <!-- end contact-info -->
+        </div> <!-- end contact-secondary -->
+
+    </div> <!-- end contact-content -->
+
+</section> <!-- end s-contact -->
+
+
+
+
+
+{% endblock %}

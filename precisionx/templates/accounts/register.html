@@ -1,0 +1,104 @@
+{% extends "landing/index.html" %}
+{% block content %}
+
+<section id="contact" class="s-login">
+
+    <div class="overlay"></div>
+
+    <div class="row section-header" data-aos="fade-up">
+        <div class="col-full">
+            <h3 class="subhead">Login</h3>
+            <h1 class="display-2 display-2--light">Reach out for a new project or just say hello</h1>
+        </div>
+    </div>
+
+    <div class="row contact-content" data-aos="fade-up">
+        
+        <div class="contact-primary">
+
+            <h3 class="h6">Register Here</h3>
+            <form method="post" action="{% url 'user_registration' %}">
+                {% csrf_token %}
+                <fieldset>
+                    <div class="form-field">
+                        {{ form.first_name.label_tag }}
+                        {{ form.first_name }}
+                    </div>
+                    <div class="form-field">
+                        {{ form.last_name.label_tag }}
+                        {{ form.last_name }}
+                    </div>
+                    <div class="form-field">
+                        {{ form.email.label_tag }}
+                        {{ form.email }}
+                    </div>
+                    <div class="form-field">
+                        {{ form.username.label_tag }}
+                        {{ form.username }}
+                    </div>
+                    <div class="form-field">
+                        {{ form.password1.label_tag }}
+                        {{ form.password1 }}
+                    </div>
+                    <div class="form-field">
+                        {{ form.password2.label_tag }}
+                        {{ form.password2 }}
+                    </div>
+                </fieldset>
+                <button type="submit">Register</button>
+            </form>
+
+            <!-- contact-warning -->
+            <div class="message-warning">
+                Something went wrong. Please try again.
+            </div> 
+        
+            <!-- contact-success -->
+            <div class="message-success">
+                Your message was sent, thank you!<br>
+            </div>
+
+        </div> <!-- end contact-primary -->
+
+        <div class="contact-secondary">
+            <div class="contact-info">
+
+                <h3 class="h6 hide-on-fullwidth">Register here</h3>
+
+                <div class="cinfo">
+                    <a href="{% url 'login' %}"><h5>Back to Login</h5></a>
+                </div>
+                <div class="cinfo">
+                    <a href="#"><h5>Contact Us At</h5></a>
+                </div>
+
+                <ul class="contact-social">
+                    <li>
+                        <a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-instagram" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-behance" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-dribbble" aria-hidden="true"></i></a>
+                    </li>
+                </ul> <!-- end contact-social -->
+
+            </div> <!-- end contact-info -->
+        </div> <!-- end contact-secondary -->
+
+    </div> <!-- end contact-content -->
+
+</section> <!-- end s-contact -->
+
+
+
+
+
+{% endblock %}
