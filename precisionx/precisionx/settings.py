@@ -52,6 +52,7 @@ MESSAGE_LEVEL = message_constants.DEBUG
 INSTALLED_APPS = [
     'accounts',
     'profitflow',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -213,3 +214,13 @@ SOCIALaccounts_PROVIDERS = {
         }
     }
 }
+
+UPSTOX_CLIENT_ID = '1208180132618547'
+# ANGEL ONE DEMAT CRED 
+ANGELONE_SECRET='7b4fa172-87a0-408c-bd15-26264964d6fe '
+ANGELONE_APIKEY='uF4eRF4J'
+ANGELONE_ENDPOINT='https://apiconnect.angelbroking.com'
+
+LOCAL_IP='192.168.29.70'
+PUBLIC_IP='49.37.225.47'
+MAC_ADDRESS='58-A0-23-10-B6-93'

@@ -33,7 +33,7 @@ class UserloginView(View):
         if logged_user.is_authenticated:
             print(logged_user)
             print("dashboard__form")
-            return redirect('user_dashboard')  
+            return redirect('create_trading_order')  
         else:
             print(logged_user)
             print("login__form")
@@ -61,7 +61,7 @@ class UserloginView(View):
                 print("user>>>>>>>>", user)
                 auth.login(request, user)
                 messages.success(request, "Login Successful!")
-                return redirect('user_dashboard')
+                return redirect('create_trading_order')
             else:
                 messages.error(request, 'Username or Password incorrect!')
         else:
@@ -87,12 +87,6 @@ class UserRegistrationView(CreateView):
     template_name = "accounts/register.html"
     success_url = reverse_lazy('user_dashboard')
     print("entry001")
-
-    # def get(self, request , **kwargs):
-
-
-
-
     def post(self, request , **kwargs):
         success_url = reverse_lazy('user_dashboard')
         template_name = "accounts/register.html"
@@ -106,24 +100,11 @@ class UserRegistrationView(CreateView):
             else:
                 print("pppp",form.errors)
                 # return redirect(success_url)
-
         else:
             form = CustomUserCreationForm()
 
         return render(request,template_name, {'form': form})
-
-    # def form_valid(self, form):
-    #     response = super().form_valid(form)
-    #     print("entry001entry001")
-    #     # Authenticate and log in the user
-    #     username = form.cleaned_data['username']
-    #     password = form.cleaned_data['password1']
-    #     messages.success(self.request, 'Registration completed successfully')
-    #     user = authenticate(username=username, password=password)
-    #     messages.success(self.request, 'redirected to Dashboard')
-    #     login(self.request, user)
-    #     return response
-
+    
 class MemberListView(View):
     def get(self, request , **kwargs):
         template = "accounts/accountsmanage.html"

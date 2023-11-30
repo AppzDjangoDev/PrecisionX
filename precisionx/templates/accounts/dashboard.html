@@ -143,7 +143,7 @@
           <ul class="menu-inner py-1">
             <!-- Dashboard -->
             <li class="menu-item active">
-              <a href="index.html" class="menu-link">
+              <a href="{% url 'create_trading_order'%}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div data-i18n="Analytics">Dashboard</div>
               </a>
@@ -151,12 +151,12 @@
 
             <!-- Layouts -->
             <li class="menu-item">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
+              <a href="{% url 'create_trading_order' %}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-layout"></i>
-                <div data-i18n="Layouts">Layouts</div>
+                <div data-i18n="Layouts">Create trading order</div>
               </a>
 
-              <ul class="menu-sub">
+              {% comment %} <ul class="menu-sub">
                 <li class="menu-item">
                   <a href="layouts-without-menu.html" class="menu-link">
                     <div data-i18n="Without menu">Without menu</div>
@@ -182,10 +182,10 @@
                     <div data-i18n="Blank">Blank</div>
                   </a>
                 </li>
-              </ul>
-            </li>
+              </ul> {% endcomment %}
+            {% comment %} </li> {% endcomment %}
 
-            <li class="menu-header small text-uppercase">
+            {% comment %} <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Pages</span>
             </li>
             <li class="menu-item">
@@ -461,7 +461,7 @@
                 <div data-i18n="Documentation">Documentation</div>
               </a>
             </li>
-          </ul>
+          </ul> {% endcomment %}
         </aside>
         <!-- / Menu -->
 
@@ -597,7 +597,7 @@
                             your profile.
                           </p>
 
-                          <a href="javascript:;" class="btn btn-sm btn-outline-primary">View Badges</a>
+                          <a href="{% url 'angelone_auth' %}" class="btn btn-sm btn-outline-primary">Authenticate Broker</a>
                         </div>
                       </div>
                       <div class="col-sm-5 text-center text-sm-left">
@@ -616,6 +616,8 @@
                 </div>
                 <div class="col-lg-4 col-md-4 order-1">
                   <div class="row">
+
+
                     <div class="col-lg-6 col-md-12 col-6 mb-4">
                       <div class="card">
                         <div class="card-body">
@@ -644,20 +646,21 @@
                               </div>
                             </div>
                           </div>
-                          <span class="fw-semibold d-block mb-1">Profit</span>
+                          <span class="fw-semibold d-block mb-1">NIFTY</span>
                           <h3 class="card-title mb-2">$12,628</h3>
                           <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +72.80%</small>
                         </div>
                       </div>
                     </div>
+
                     <div class="col-lg-6 col-md-12 col-6 mb-4">
                       <div class="card">
                         <div class="card-body">
                           <div class="card-title d-flex align-items-start justify-content-between">
                             <div class="avatar flex-shrink-0">
                               <img
-                                src="{% static 'dashboard/assets/img/icons/unicons/wallet-info.png' %}"
-                                alt="Credit Card"
+                                src="{% static 'dashboard/assets/img/icons/unicons/chart-success.png' %}"
+                                alt="chart success"
                                 class="rounded"
                               />
                             </div>
@@ -665,28 +668,92 @@
                               <button
                                 class="btn p-0"
                                 type="button"
-                                id="cardOpt6"
+                                id="cardOpt3"
                                 data-bs-toggle="dropdown"
                                 aria-haspopup="true"
                                 aria-expanded="false"
                               >
                                 <i class="bx bx-dots-vertical-rounded"></i>
                               </button>
-                              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
+                              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
                                 <a class="dropdown-item" href="javascript:void(0);">View More</a>
                                 <a class="dropdown-item" href="javascript:void(0);">Delete</a>
                               </div>
                             </div>
                           </div>
-                          <span>Sales</span>
-                          <h3 class="card-title text-nowrap mb-1">$4,679</h3>
-                          <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +28.42%</small>
+                          <span class="fw-semibold d-block mb-1">BANK NIFTY</span>
+                          <h3 class="card-title mb-2">$12,628</h3>
+                          <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +72.80%</small>
                         </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-8 order-2 order-md-3 order-lg-2 mb-4">
+                  <div class="card">
+                    <div class="card-body">
+                    <div class="row row-bordered g-0">
+                      <div class="col-md-12">
+                        <h5 class="card-title text-secondary">Create Order</h5>
+                        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+                    
+                        <form method="post" action="{% url 'create_trading_order' %}" id="trading-order-form">
+                            {% csrf_token %}
+                            <div class="mb-3 row">
+                              <label for="id_stock_name" class="col-md-4 col-form-label">Stock Name</label>
+                              <div class="col-md-8">
+                                  {{ form.stock_name }}
+                              </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="id_option_type" class="col-md-4 col-form-label">Option Type</label>
+                                <div class="col-md-8">
+                                    {{ form.option_type }}
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="id_strike_type" class="col-md-4 col-form-label">Strike Type</label>
+                                <div class="col-md-8">
+                                    {{ form.strike_type }}
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="id_buy_target" class="col-md-4 col-form-label">Buy Target</label>
+                                <div class="col-md-8">
+                                    {{ form.buy_target }}
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="id_stop_loss" class="col-md-4 col-form-label">Stop loss (in %)</label>
+                                <div class="col-md-8">
+                                    {{ form.stop_loss }}
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="id_trailing_stop_loss_interval" class="col-md-4 col-form-label">Trailing Interval(%)</label>
+                                <div class="col-md-8">
+                                    {{ form.trailing_stop_loss_interval }}
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="id_trailing_stop_loss" class="col-md-4 col-form-label">Trailing S/L(%)</label>
+                                <div class="col-md-8">
+                                    {{ form.trailing_stop_loss }}
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2">Save changes</button>
+                                <button type="reset" class="btn btn-outline-secondary">Discard</button>
+                            </div>
+                        </form>
                       </div>
                     </div>
                   </div>
                 </div>
-                <!-- Total Revenue -->
+                </div>
+                {% comment %} <!-- Total Revenue -->
                 <div class="col-12 col-lg-8 order-2 order-md-3 order-lg-2 mb-4">
                   <div class="card">
                     <div class="row row-bordered g-0">
@@ -743,9 +810,69 @@
                     </div>
                   </div>
                 </div>
-                <!--/ Total Revenue -->
+                <!--/ Total Revenue --> {% endcomment %}
                 <div class="col-12 col-md-8 col-lg-4 order-3 order-md-2">
                   <div class="row">
+                    <div class="col-6 mb-4">
+                      <div class="card">
+                        <div class="card-body">
+                          <div class="card-title d-flex align-items-start justify-content-between">
+                            <div class="avatar flex-shrink-0">
+                              <img src="{% static 'dashboard/assets/img/icons/unicons/paypal.png' %}" alt="Credit Card" class="rounded" />
+                            </div>
+                            <div class="dropdown">
+                              <button
+                                class="btn p-0"
+                                type="button"
+                                id="cardOpt4"
+                                data-bs-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                              >
+                                <i class="bx bx-dots-vertical-rounded"></i>
+                              </button>
+                              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt4">
+                                <a class="dropdown-item" href="javascript:void(0);">View More</a>
+                                <a class="dropdown-item" href="javascript:void(0);">Delete</a>
+                              </div>
+                            </div>
+                          </div>
+                          <span class="d-block mb-1">STRIKE</span>
+                          <h3 class="card-title text-nowrap mb-2">$2,456</h3>
+                          <small class="text-primary fw-semibold"><i class="bx bx-down-arrow-alt"></i>NIFTY</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-6 mb-4">
+                      <div class="card">
+                        <div class="card-body">
+                          <div class="card-title d-flex align-items-start justify-content-between">
+                            <div class="avatar flex-shrink-0">
+                              <img src="{% static 'dashboard/assets/img/icons/unicons/paypal.png' %}" alt="Credit Card" class="rounded" />
+                            </div>
+                            <div class="dropdown">
+                              <button
+                                class="btn p-0"
+                                type="button"
+                                id="cardOpt4"
+                                data-bs-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                              >
+                                <i class="bx bx-dots-vertical-rounded"></i>
+                              </button>
+                              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt4">
+                                <a class="dropdown-item" href="javascript:void(0);">View More</a>
+                                <a class="dropdown-item" href="javascript:void(0);">Delete</a>
+                              </div>
+                            </div>
+                          </div>
+                          <span class="d-block mb-1">STRIKE</span>
+                          <h3 class="card-title text-nowrap mb-2">$2,456</h3>
+                          <small class="text-primary fw-semibold"><i class="bx bx-down-arrow-alt"></i> BANKNIFTY</small>
+                        </div>
+                      </div>
+                    </div>
                     <div class="col-6 mb-4">
                       <div class="card">
                         <div class="card-body">
@@ -948,8 +1075,7 @@
                             data-bs-target="#navs-tabs-line-card-income"
                             aria-controls="navs-tabs-line-card-income"
                             aria-selected="true"
-                          >
-                            Income
+                          > Income
                           </button>
                         </li>
                         <li class="nav-item">

@@ -1,0 +1,11 @@
+{% extends "accounts/dashboard.html" %}
+{% load static %}
+{% block content %}
+  <h2>Trade List</h2>
+  <ul>
+    {% for trade in trades %}
+      <li>{{ trade.option_type }} - Entry Time: {{ trade.entry_time }} - Entry Price: {{ trade.entry_price }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+

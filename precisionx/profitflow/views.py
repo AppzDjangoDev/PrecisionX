@@ -1,195 +1,220 @@
-from __future__ import print_function
-import time
-from django.shortcuts import redirect, render
-from accounts.forms import UserLoginForm, UserprofileUpdate
-from django.contrib import auth
-from django.views import View  
-from django.contrib.auth import logout
-from django.contrib import messages
-from accounts.models import User
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
-from django.views.generic.list import ListView
-from datetime import datetime
-from django.db.models import Sum
-from django.urls import reverse_lazy
-from django.views.generic import CreateView
-from accounts.forms import CustomUserCreationForm
-from django.contrib.auth import authenticate, login
-from decimal import Decimal
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render
+from django.views import View
+from django.http import HttpResponse
+import http.client
+import mimetypes
+import http.client
+import json
+from django.http import JsonResponse
+from precisionx import settings
+from django.shortcuts import render, redirect
+from .forms import TradingOrderForm
+from .models import TradingOrder
+
+class Trading_menu(View):
+    template_name = 'profitflow/trading.html'
+
+    def get(self, request, *args, **kwargs):
+        # Handle GET request logic here
+        context = {'message': 'Hello, this is a class-based view!'}
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        # Handle POST request logic here
+        return HttpResponse('This is a POST request response.')
+
+    def put(self, request, *args, **kwargs):
+        # Handle PUT request logic here
+        return HttpResponse('This is a PUT request response.')
+
+def create_trading_order(request):
+    if request.method == 'POST':
+        form = TradingOrderForm(request.POST)
+        if form.is_valid():
+            trading_order = form.save(commit=False)
+            trading_order.entry_time = get_entry_time()
+            trading_order.entry_price = get_entry_price()
+            trading_order.save()
+            return redirect('success_page')
+    else:
+        initial_buy_target = get_real_time_option_price()  # Replace with actual implementation
+        form = TradingOrderForm(initial={'buy_target': initial_buy_target})
+    return render(request, 'accounts/dashboard.html', {'form': form})
 
 
-# # Create your views here.
-# class PfxLoginView(View):
-#     def get(self, request):
-#         template = "profitflow/registration/Login_v1/index.html"
-#         context={}
-#         context['form']= UserLoginForm()
-#         print("context", context)
-#         logged_user = request.user
+def get_entry_time(current_datetime):
+    # Implement logic to get entry time from Upstox API or use the current time
+    # Replace this with your actual implementation
+    return current_datetime
 
-#         if logged_user.is_authenticated:
-#             print(logged_user)
-#             print("dashboard__form")
-#             return redirect('user_dashboard')  
-#         else:
-#             print(logged_user)
-#             print("login__form")
-#             return render(request, template, context)
+def get_entry_price():
+    # Implement logic to get entry price from Upstox API
+    # Replace this with your actual implementation
+    return 154
+
+def get_real_time_option_price():
+    return 0
+
+
+def upstox_auth(request):
+    # Upstox API parameters
+    base_url = "https://api-v2.upstox.com"
+    client_id = settings.UPSTOX_CLIENT_ID  # Make sure UPSTOX_CLIENT_ID is defined in your settings.py
+    print("client_id", client_id)
+    redirect_uri = "http://127.0.0.1:8000/trade/create/"
+    print("redirect_uri", redirect_uri)
+    api_version = "2.0"
+
+    # Redirect URL
+    redirect_url = f"{base_url}/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&Api-Version={api_version}"
+    print("redirect_urlredirect_urlredirect_url", redirect_url)
+
+    return redirect(redirect_url)
+
+
+
+
+def angelone_authentication(request):
+    try:
+        conn = http.client.HTTPSConnection("apiconnect.angelbroking.com")
+        payload = {
+            "clientcode": "CLIENT_ID",
+            "password": "CLIENT_PIN",
+            "totp": "TOTP_CODE"
+        }
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-UserType': 'USER',
+            'X-SourceID': 'WEB',
+            'X-ClientLocalIP': settings.LOCAL_IP,
+            'X-ClientPublicIP': settings.PUBLIC_IP ,
+            'X-MACAddress': settings.MAC_ADDRESS,
+            'X-PrivateKey': settings.ANGELONE_APIKEY
+        }
         
-#     def logoutUser(request):
-#         print("logout_processing")
-#         logout(request)
-#         return redirect('login')
+        payload_json = json.dumps(payload)
+        headers_json = json.dumps(headers)
 
-#     def post(self, request):
-#         context={}
-#         form = UserLoginForm(request.POST)
-#         context['form']= form
-#         template ="profitflow/registration/Login_v1/index.html"
-#         if request.method == "POST":
-#             if form.is_valid():
-#                 login_username = request.POST["username"]
-#                 login_password = request.POST["password"]
-#                 print(login_username)
-#                 print(login_password)
-#                 user = auth.authenticate(username=login_username, password=login_password)
-#                 if user :
-#                 # if user is not None and  user.is_superuser==False and user.is_active==True:
-#                     auth.login(request, user)
-#                     print("login success")
-#                     messages.success(request, "Login Successful !")
-#                     # return render(request, "user/dashboard.html")
-#                     return redirect('user_dashboard')  
-#                 else:
-#                     print("user not Exists")
-#                     # messages.info(request, "user not Exists")
-#                     messages.error(request, 'Username or Password incorrect !')
-#                     return render(request, template, context)
-#             else:
-#                 print("user not created")
-#                 return render(request, template, context)
+        conn.request(
+            "POST", 
+            "/rest/auth/angelbroking/user/v1/loginByPassword",
+            payload_json,
+            json.loads(headers_json)
+        )
 
-# # def homePage(request):
-# #     return render(request,'profitflow/index.html')
+        res = conn.getresponse()
+        data = res.read()
+        print(data.decode("utf-8"))
 
 
+        # Check if the response is already a dictionary
+        try:
+            json_data = json.loads(data)
+        except json.JSONDecodeError:
+            # If not, create a dictionary with the raw data
+            json_data = {'raw_data': data}
 
-# class PfxRegisterView(CreateView):
-#     form_class = CustomUserCreationForm
-#     template_name = "landing/register.html"
-#     success_url = reverse_lazy('user_dashboard')
+        return JsonResponse(json_data, safe=False)  # Set safe=False to allow non-dict objects
+    except Exception as e:
+        # Handle exceptions
+        error_message = str(e)
+        response_data = {'error': error_message}
+        return JsonResponse(response_data, status=500)
 
-#     def form_valid(self, form):
-#         response = super().form_valid(form)
+def place_order(request):
+    try:
+        conn = http.client.HTTPSConnection("apiconnect.angelbroking.com")
 
-#         # Authenticate and log in the user
-#         username = form.cleaned_data['username']
-#         password = form.cleaned_data['password1']
-#         messages.success(self.request, 'Registration completed successfully')
-#         user = authenticate(username=username, password=password)
-#         messages.success(self.request, 'redirected to Dashboard')
-#         login(self.request, user)
-#         return response
-    
+        payload = {
+            "exchange": "NSE",
+            "tradingsymbol": "INFY-EQ",
+            "quantity": 5,
+            "disclosedquantity": 3,
+            "transactiontype": "BUY",
+            "ordertype": "MARKET",
+            "variety": "STOPLOSS",
+            "producttype": "INTRADAY"
+        }
+        headers = {
+            'Authorization': 'Bearer AUTHORIZATION_TOKEN',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-UserType': 'USER',
+            'X-SourceID': 'WEB',
+            'X-ClientLocalIP': settings.LOCAL_IP,
+            'X-ClientPublicIP': settings.PUBLIC_IP,
+            'X-MACAddress': settings.MAC_ADDRESS,
+            'X-PrivateKey': settings.ANGELONE_APIKEY
+        }
 
-# class Pfxdashbaord(View):
-#     def get(self, request):
-#         template = "profitflow/dashboard/index.html"
-#         context={}
-#         context['form']= UserLoginForm()
-#         print("context", context)
-#         logged_user = request.user
-#         data=self.getprofiledata(request)
+        conn.request("POST", "/rest/secure/angelbroking/order/v1/placeOrder", json.dumps(payload), headers)
 
-#         if logged_user.is_authenticated:
-#             print(logged_user)
-#             print("dashboard__form")
-#             return redirect('user_dashboard')  
-#         else:
-#             print(logged_user)
-#             print("login__form")
-#             return render(request, template, context)
-        
-#     def UpstoxAuth(self, reuest):
-#         import requests
-#         # Define variables for the request
-#         api_method = 'GET'  # Replace with the desired HTTP method (e.g., GET, POST, PUT, DELETE)
-#         api_endpoint = '[API_ENDPOINT]'  # Replace with the specific API endpoint
-#         access_token = '[YOUR_ACCESS_TOKEN]'  # Replace with your actual access token
-#         content_type_header = {}  # Add content-type header if needed (e.g., 'Content-Type': 'application/json')
-#         request_payload = {}  # Add request payload as a dictionary if needed
-
-#         # Define the base URL
-#         base_url = 'https://api-v2.upstox.com/'
-
-#         # Construct the full URL
-#         url = f'{base_url}{api_endpoint}'
-
-#         # Define headers
-#         headers = {
-#             'accept': 'application/json',
-#             'Api-Version': '2.0',
-#             'Authorization': f'Bearer {access_token}'
-#         }
-
-#         # Add content-type header if provided
-#         headers.update(content_type_header)
-
-#         # Make the HTTP request
-#         if api_method == 'GET':
-#             response = requests.get(url, headers=headers)
-#         elif api_method == 'POST':
-#             response = requests.post(url, headers=headers, json=request_payload)
-#         elif api_method == 'PUT':
-#             response = requests.put(url, headers=headers, json=request_payload)
-#         elif api_method == 'DELETE':
-#             response = requests.delete(url, headers=headers)
-#         else:
-#             raise ValueError(f'Unsupported HTTP method: {api_method}')
-
-#         # Check the response
-#         if response.status_code == 200:
-#             # Successful response
-#             response_data = response.json()
-#             print(response_data)
-#         else:
-#             # Handle error response
-#             print(f'Request failed with status code {response.status_code}: {response.text}')
-
-        
+        res = conn.getresponse()
+        data = res.read().decode("utf-8")
+        return JsonResponse({"status": "success", "data": data})
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)})
 
 
-#     def getprofiledata(self,request):
-#         user=request.user
-#         print("user__test",user)
-#         data ="test"
-#         import requests
+def modify_order(request):
+    try:
+        conn = http.client.HTTPSConnection("apiconnect.angelbroking.com")
+        payload = {
+            "variety": "NORMAL",
+            "orderid": "201020000000080",
+            "ordertype": "LIMIT",
+            "producttype": "INTRADAY",
+            "duration": "DAY",
+            "price": "194.00",
+            "quantity": "1"
+        }
 
-#         # Define the API endpoint and headers
-#         url = 'https://api-v2.upstox.com/user/profile'
-#         headers = {
-#             'accept': 'application/json',
-#             'Api-Version': '2.0',
-#             'Authorization': 'Bearer access_token'  # Replace 'access_token' with the actual access token
-#         }
+        headers = {
+            'Authorization': 'Bearer AUTHORIZATION_TOKEN',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-UserType': 'USER',
+            'X-SourceID': 'WEB',
+            'X-ClientLocalIP': settings.LOCAL_IP,
+            'X-ClientPublicIP': settings.PUBLIC_IP,
+            'X-MACAddress': settings.MAC_ADDRESS,
+            'X-PrivateKey': settings.ANGELONE_APIKEY
+        }
 
-#         # Make a GET request
-#         response = requests.get(url, headers=headers)
+        conn.request("POST", "/rest/secure/angelbroking/order/v1/modifyOrder", json.dumps(payload), headers)
 
-#         # Check if the request was successful (HTTP status code 200)
-#         if response.status_code == 200:
-#             # Parse and work with the response data
-#             profile_data = response.json()
-#             print(profile_data)
-#         else:
-#             print(f"Request failed with status code {response.status_code}: {response.text}")
+        res = conn.getresponse()
+        data = res.read().decode("utf-8")
+        return JsonResponse({"status": "success", "data": data})
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)})
 
-#         return data
 
-        
-#     def logoutUser(request):
-#         print("logout_processing")
-#         logout(request)
-#         return redirect('login')
+def get_ltp_data(request):
+    try:
+        conn = http.client.HTTPSConnection("apiconnect.angelbroking.com")
+        payload = {
+            "exchange": "NSE",
+            "tradingsymbol": "SBIN-EQ",
+            "symboltoken": "3045"
+        }
+        headers = {
+            'Authorization': 'Bearer AUTHORIZATION_TOKEN',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-UserType': 'USER',
+            'X-SourceID': 'WEB',
+            'X-ClientLocalIP': settings.LOCAL_IP,
+            'X-ClientPublicIP': settings.PUBLIC_IP,
+            'X-MACAddress': settings.MAC_ADDRESS,
+            'X-PrivateKey': settings.ANGELONE_APIKEY
+        }
+
+        conn.request("POST", "/rest/secure/angelbroking/order/v1/getLtpData", json.dumps(payload), headers)
+
+        res = conn.getresponse()
+        data = res.read().decode("utf-8")
+        return JsonResponse({"status": "success", "data": data})
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)})

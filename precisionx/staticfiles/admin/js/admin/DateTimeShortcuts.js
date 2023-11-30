@@ -45,7 +45,7 @@
                 }
             }
         },
-        // Return the current time while accountsing for the server timezone.
+        // Return the current time while accounting for the server timezone.
         now: function() {
             const serverOffset = document.body.dataset.adminUtcOffset;
             if (serverOffset) {
