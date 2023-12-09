@@ -164,3 +164,5 @@ class ProfileView(View):
         else:
             print("updating failed")
             return render(request, template, context)
+        
+        

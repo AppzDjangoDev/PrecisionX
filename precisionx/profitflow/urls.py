@@ -13,7 +13,13 @@ urlpatterns = [
 
     # UPSTOX
     # path('upstox_auth', views.upstox_auth, name = 'upstox_auth'),  
-    path('angelone_auth', views.angelone_authentication, name = 'angelone_auth'),
+    # path('angelone_auth', views.angelone_authentication, name = 'angelone_auth'),
+    # path('check-api-status/', views.check_api_status, name='check_api_status'),
+    # path('logout/', views.angelone_logout, name='logout'),
+    # path('get_market_data/', views.get_nifty_ltp_data, name='get_market_data'),
+    # path('get_strike_widget_data/', views.get_strike_widget_data, name='get_strike_widget_data'),
+
+    
 
 
       

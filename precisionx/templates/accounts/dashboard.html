@@ -575,14 +575,9 @@
 
           <!-- / Navbar -->
           {% block content %}
-       
-
-          
-
           <!-- Content wrapper -->
           <div class="content-wrapper">
             <!-- Content -->
-
             <div class="container-xxl flex-grow-1 container-p-y">
               <div class="row">
                 <div class="col-lg-8 mb-4 order-0">
@@ -590,14 +585,281 @@
                     <div class="d-flex align-items-end row">
                       <div class="col-sm-7">
                         <div class="card-body">
-                            
                           <h5 class="card-title text-primary">Congratulations  {{request.user.first_name}} {{request.user.last_name}} 🎉</h5>
                           <p class="mb-4">
                             You have done <span class="fw-bold">72%</span> more sales today. Check your new badge in
                             your profile.
                           </p>
+                          <p id="api-status"></p>
+                          <button id="connect-btn" class="btn btn-sm btn-success" style="display:none;">Brocker Connected</button>
+                          <button id="logout-btn" class="btn btn-sm btn-danger" style="display:none;" >Logout</button>
+                          {% comment %} <button id="get-market-data-btn" class="btn btn-sm btn-danger"  >MARKET DATA</button> {% endcomment %}
 
-                          <a href="{% url 'angelone_auth' %}" class="btn btn-sm btn-outline-primary">Authenticate Broker</a>
+                          
+                          {% comment %} <button id="authenticate-btn" class="btn btn-sm btn-outline-primary" style="display: none;">Authenticate Broker</button> {% endcomment %}
+                          
+                          <div class="mb-2 row" id="mpin-section" style="display:none;">
+                              <label for="html5-password-input" id='mpin-label' class="col-md-2 col-form-label">MPIN</label>
+                              <div class="col-md-4">
+                                  <input class="form-control" type="password" value="password" id="html5-password-input" />
+                              </div>
+                          </div>
+                          <button id="authenticate-btn" class="btn btn-sm btn-primary" style="display:none;">Authenticate Broker</button>
+                          <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+                          <script>
+                              $(document).ready(function() {
+                                  checkApiStatus(); // Check API status on page load
+                                  
+                          
+                                  // Periodically check API status every 30 seconds
+                                  setInterval(function() {
+                                      getMarketData()
+                                      getStrikeData();
+                                                                          
+
+                                  }, 1000);
+                          
+                                  // Use 'on' to bind click event for dynamically added elements
+                                  $(document).on("click", "#authenticate-btn", function() {
+                                      authenticateBroker();
+                                  });
+
+                                  $(document).on("click", "#get-market-data-btn", function() {
+                                    getMarketData();
+                                });
+                              });
+                          
+                              function checkApiStatus() {
+                                  // Make an AJAX request to check API status
+                                  $.ajax({
+                                      type: 'GET',
+                                      url: '{% url "check_api_status" %}', // Replace with the actual URL to check API status
+                                      success: function(response) {
+                                          console.log("pppppppppppppppppp", response)
+                                          if (response.status==200) {
+                                              // API is available
+                                              $("#connect-btn").show();
+                                              $("#logout-btn").show();
+                                              $("#mpin-section, #authenticate-btn").hide();
+                                          }else if (response.status==500){
+                                              // API is not available
+                                              $("#connect-btn").hide();
+                                              $("#logout-btn").hide();
+                                              $("#mpin-section, #authenticate-btn").show();
+                                          }
+                                      },
+                                      error: function() {
+                                          // Handle error
+                                      }
+                                  });
+                              }
+                          
+                              function authenticateBroker() {
+                                  // Get the CSRF token from the cookie
+                                  var csrftoken = getCookie('csrftoken');
+                          
+                                  // Get the MPIN from the password field
+                                  var mpin = $("#html5-password-input").val();
+                          
+                                  // Assuming you have the necessary data for authentication
+                                  var data = {
+                                      'password': mpin,
+                                  };
+                          
+                                  // Make an AJAX request to your Django view with the CSRF token
+                                  $.ajax({
+                                      type: 'POST',
+                                      url: '{% url "angelone_auth" %}',
+                                      data: data,
+                                      headers: {
+                                          'X-CSRFToken': csrftoken
+                                      },
+                                      success: function(response) {
+                                          if (response.status) {
+                                              // API is available
+                                              $("#connect-btn").show();
+                                              $("#logout-btn").show();
+                                              $("#mpin-section, #authenticate-btn").hide();
+                                          } else {
+                                              // API is not available
+                                              $("#connect-btn").hide();
+                                              $("#logout-btn").hide();
+                                              $("#mpin-section, #authenticate-btn").show();
+                                          }
+                                      },
+                                  });
+                              }
+
+                              function getMarketData() {
+                                // Get the CSRF token from the cookie
+                                var csrftoken = getCookie('csrftoken');
+                        
+                                // Get the MPIN from the password field
+                                var mpin = $("#html5-password-input").val();
+                        
+                                // Assuming you have the necessary data for authentication
+                                var data = {
+                                    'password': mpin,
+                                };
+                        
+                                // Make an AJAX request to your Django view with the CSRF token
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{% url "get_market_data" %}',
+                                    data: data,
+                                    headers: {
+                                        'X-CSRFToken': csrftoken
+                                    },
+                                    success: function(response) {
+                                        if (response.status) {
+                                          // Assuming responseJson is the parsed JSON response data
+                                          var ltp = response.data.ltp;
+
+                                          // Now you can use the 'ltp' variable as needed
+                                          console.log("Last Traded Price (LTP):", ltp);
+
+                                          // Assuming you want to update the HTML content of an element with id 'nifty-ltp'
+                                          document.getElementById('nifty-ltp').innerHTML = ltp.toFixed(2); // Formatting as currency
+
+                                        } else {
+                                          console.log("responseresponseooooooooooo", response)
+
+                                        }
+                                    },
+                                });
+
+
+                            }
+
+                            function getStrikeData(){
+                              // Get the CSRF token from the cookie
+                              var csrftoken = getCookie('csrftoken');
+                      
+                              // Get the MPIN from the password field
+                              var mpin = $("#html5-password-input").val();
+                      
+                              // Assuming you have the necessary data for authentication
+                              var data = {
+                                  'password': mpin,
+                              };
+                      
+                              // Make an AJAX request to your Django view with the CSRF token
+                              $.ajax({
+                                  type: 'POST',
+                                  url: '{% url "get_strike_widget_data" %}',
+                                  data: data,
+                                  headers: {
+                                      'X-CSRFToken': csrftoken
+                                  },
+                                  success: function(response) {
+                                      if (response.status) {
+                                        // Assuming responseJson is the parsed JSON response data
+                                        var call_ltp = response.data.fetched[0].ltp;
+                                        var put_ltp = response.data.fetched[1].ltp;
+                                        var strike_price = response.strike_price;
+
+                                        // Now you can use the 'ltp' variable as needed
+                                        console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh", response);
+
+
+                                        // Assuming you want to update the HTML content of an element with id 'nifty-ltp'
+                                        document.getElementById('call_strike_ltp').innerHTML = call_ltp.toFixed(2); // Formatting as currency
+                                        document.getElementById('put_strike_ltp').innerHTML = put_ltp.toFixed(2); // Formatting as currency
+                                        document.getElementById('strike_price').innerHTML = strike_price; // Formatting as currency
+
+                                      } else {
+                                        console.log("responseresponseooooooooooo", response)
+
+                                      }
+                                  },
+                              });
+
+                            }
+                          
+                              // Function to get the CSRF token from the cookie
+                              function getCookie(name) {
+                                  var cookieValue = null;
+                                  if (document.cookie && document.cookie !== '') {
+                                      var cookies = document.cookie.split(';');
+                                      for (var i = 0; i < cookies.length; i++) {
+                                          var cookie = cookies[i].trim();
+                                          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                              break;
+                                          }
+                                      }
+                                  }
+                                  return cookieValue;
+                              }
+                              $(document).ready(function() {
+                                $("#logout-btn").click(function() {
+                                    performLogout();
+                                });
+                            });
+                        
+                            function performLogout() {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/logout',  // Replace with the actual URL for your logout endpoint
+                                    success: function(response) {
+                                        console.log(response);
+                                        // Handle success, if needed
+                                    },
+                                    error: function(error) {
+                                        console.error(error);
+                                        // Handle error, if needed
+                                    }
+                                });
+                            }    
+                            $(document).ready(function() {
+                                $("#logout-btn").click(function() {
+                                    performLogout();
+                                });
+                            });
+                        
+                            function performLogout() {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/logout',  // Replace with the actual URL for your logout endpoint
+                                    success: function(response) {
+                                        console.log(response);
+                                        // Handle success, if needed
+                                    },
+                                    error: function(error) {
+                                        console.error(error);
+                                        // Handle error, if needed
+                                    }
+                                });
+                            }
+
+                            $(document).ready(function() {
+                              $("#logout-btn").click(function() {
+                                  performLogout();
+                              });
+                          });
+                      
+                          function performLogout() {
+                              // Get the CSRF token from the cookie
+                              var csrftoken = getCookie('csrftoken');
+                      
+                              $.ajax({
+                                  type: 'POST',
+                                  url: '/logout/',  // Replace with the actual URL for your logout endpoint
+                                  headers: {
+                                      'X-CSRFToken': csrftoken
+                                  },
+                                  success: function(response) {
+                                      console.log(response);
+                                      // Handle success, if needed
+                                  },
+                                  error: function(error) {
+                                      console.error(error);
+                                      // Handle error, if needed
+                                  }
+                              });
+                          }
+                          </script>
+                          
                         </div>
                       </div>
                       <div class="col-sm-5 text-center text-sm-left">
@@ -647,7 +909,7 @@
                             </div>
                           </div>
                           <span class="fw-semibold d-block mb-1">NIFTY</span>
-                          <h3 class="card-title mb-2">$12,628</h3>
+                          <h4 id='nifty-ltp' class="card-title mb-2">00,00</h4>
                           <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +72.80%</small>
                         </div>
                       </div>
@@ -681,8 +943,8 @@
                               </div>
                             </div>
                           </div>
-                          <span class="fw-semibold d-block mb-1">BANK NIFTY</span>
-                          <h3 class="card-title mb-2">$12,628</h3>
+                          <span class="fw-semibold d-block mb-1" >STRIKE PRICE</span>
+                          <h3 class="card-title mb-2" id="strike_price">00.00</h3>
                           <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +72.80%</small>
                         </div>
                       </div>
@@ -692,9 +954,9 @@
                 </div>
 
                 <div class="col-12 col-lg-8 order-2 order-md-3 order-lg-2 mb-4">
-                  <div class="card">
-                    <div class="card-body">
-                    <div class="row row-bordered g-0">
+                  <div class="card pb-5">
+                    <div class="card-body m-2">
+                    <div class="row g-0">
                       <div class="col-md-12">
                         <h5 class="card-title text-secondary">Create Order</h5>
                         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -756,7 +1018,7 @@
                 {% comment %} <!-- Total Revenue -->
                 <div class="col-12 col-lg-8 order-2 order-md-3 order-lg-2 mb-4">
                   <div class="card">
-                    <div class="row row-bordered g-0">
+                    <div class="row g-0">
                       <div class="col-md-8">
                         <h5 class="card-header m-0 me-2 pb-3">Total Revenue</h5>
                         <div id="totalRevenueChart" class="px-2"></div>
@@ -837,8 +1099,8 @@
                               </div>
                             </div>
                           </div>
-                          <span class="d-block mb-1">STRIKE</span>
-                          <h3 class="card-title text-nowrap mb-2">$2,456</h3>
+                          <span class="d-block mb-1">CALL STRIKE LTP</span>
+                          <h3 class="card-title text-nowrap mb-2" id="call_strike_ltp">00.00</h3>
                           <small class="text-primary fw-semibold"><i class="bx bx-down-arrow-alt"></i>NIFTY</small>
                         </div>
                       </div>
@@ -867,8 +1129,8 @@
                               </div>
                             </div>
                           </div>
-                          <span class="d-block mb-1">STRIKE</span>
-                          <h3 class="card-title text-nowrap mb-2">$2,456</h3>
+                          <span class="d-block mb-1">PUT STRIKE LTP</span>
+                          <h3 class="card-title text-nowrap mb-2" id="put_strike_ltp">00.00</h3>
                           <small class="text-primary fw-semibold"><i class="bx bx-down-arrow-alt"></i> BANKNIFTY</small>
                         </div>
                       </div>
@@ -897,7 +1159,7 @@
                               </div>
                             </div>
                           </div>
-                          <span class="d-block mb-1">Payments</span>
+                          <span class="d-block mb-1">Wallet</span>
                           <h3 class="card-title text-nowrap mb-2">$2,456</h3>
                           <small class="text-danger fw-semibold"><i class="bx bx-down-arrow-alt"></i> -14.82%</small>
                         </div>
@@ -935,7 +1197,7 @@
                     </div>
                     <!-- </div>
     <div class="row"> -->
-                    <div class="col-12 mb-4">
+                    {% comment %} <div class="col-12 mb-4">
                       <div class="card">
                         <div class="card-body">
                           <div class="d-flex justify-content-between flex-sm-row flex-column gap-3">
@@ -955,7 +1217,7 @@
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> {% endcomment %}
                   </div>
                 </div>
               </div>
